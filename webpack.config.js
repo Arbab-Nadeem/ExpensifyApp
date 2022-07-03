@@ -1,35 +1,54 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
-	mode: 'development',
-	entry: './src/index.js',
-	// entry: './src/playground/test.js',
-	output: {
-		path: path.join(__dirname, 'public'),
-		filename: 'bundle.js',
-	},
-	module: {
-		rules: [
-			{
-				loader: 'babel-loader',
-				test: /\.js$/,
-				exclude: /node_modules/,
-			},
-			{
-				test: /\.s?css$/,
-				use: ['style-loader', 'css-loader', 'sass-loader'],
-			},
-		],
-	},
-	target: 'web',
-	devtool: 'eval-cheap-module-source-map',
-	devServer: {
-		static: {
-			directory: path.join(__dirname, 'public'),
+module.exports = (env) => {
+	return {
+		mode: env.production ? 'production' : 'development',
+		entry: './src/index.js',
+		output: {
+			path: path.join(__dirname, 'public'),
+			filename: 'bundle.js',
 		},
-		hot: false,
-		compress: true,
-		liveReload: true,
-		historyApiFallback: true,
-	},
+
+		module: {
+			rules: [
+				{
+					loader: 'babel-loader',
+					test: /\.js$/,
+					exclude: /node_modules/,
+				},
+				{
+					test: /\.s?css$/,
+					use: [
+						MiniCssExtractPlugin.loader,
+						{
+							loader: 'css-loader',
+							options: { sourceMap: true },
+						},
+						{
+							loader: 'sass-loader',
+							options: { sourceMap: true },
+						},
+					],
+				},
+			],
+		},
+
+		target: 'web',
+		devtool: env.production ? 'source-map' : 'inline-source-map',
+		devServer: {
+			static: {
+				directory: path.join(__dirname, 'public'),
+			},
+			// hot: false,
+			// compress: true,
+			// liveReload: true,
+			historyApiFallback: true,
+		},
+		plugins: [
+			new MiniCssExtractPlugin({
+				filename: 'styles.css',
+			}),
+		],
+	};
 };
