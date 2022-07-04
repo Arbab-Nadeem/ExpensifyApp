@@ -6,7 +6,7 @@ module.exports = (env) => {
 		mode: env.production ? 'production' : 'development',
 		entry: './src/index.js',
 		output: {
-			path: path.join(__dirname, 'public'),
+			path: path.join(__dirname, 'public/', 'dist'),
 			filename: 'bundle.js',
 		},
 
@@ -39,6 +39,7 @@ module.exports = (env) => {
 		devServer: {
 			static: {
 				directory: path.join(__dirname, 'public'),
+				// publicPath: '/dist/',
 			},
 			// hot: false,
 			// compress: true,
