@@ -39,12 +39,18 @@ module.exports = (env) => {
 		devServer: {
 			static: {
 				directory: path.join(__dirname, 'public'),
-				// publicPath: '/dist/',
+				// publicPath: '/',
 			},
+			/* client: {
+				overlay: true,
+				progress: true,
+				reconnect: true,
+			}, */
 			// hot: false,
 			// compress: true,
 			// liveReload: true,
 			historyApiFallback: true,
+			open: true,
 		},
 		plugins: [
 			new MiniCssExtractPlugin({

@@ -28,10 +28,11 @@ export default class ExpenseForm extends React.Component {
 		}));
 	};
 	onNoteChange = (event) => {
-		// const note = event.target.value;
-		event.persist();
+		const note = event.target.value;
+		// event.persist();
 		this.setState(() => ({
-			note: event.target.value,
+			// note: event.target.value,
+			note,
 		}));
 	};
 	onAmountChange = (event) => {
