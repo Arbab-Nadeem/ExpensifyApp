@@ -1,15 +1,18 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
+const publicPath = process.env.PUBLIC_URL || '/';
 module.exports = (env) => {
 	return {
 		mode: env.production ? 'production' : 'development',
 		entry: './src/index.js',
 		output: {
 			path: path.join(__dirname, 'public/', 'dist'),
+			publicPath,
 			filename: 'bundle.js',
 		},
-
+		resolve: {
+			extensions: ['.js', '.jsx'],
+		},
 		module: {
 			rules: [
 				{
@@ -39,16 +42,12 @@ module.exports = (env) => {
 		devServer: {
 			static: {
 				directory: path.join(__dirname, 'public'),
-				// publicPath: '/',
+				publicPath,
 			},
-			/* client: {
-				overlay: true,
-				progress: true,
-				reconnect: true,
-			}, */
-			// hot: false,
-			// compress: true,
-			// liveReload: true,
+
+			hot: false,
+			compress: true,
+			liveReload: true,
 			historyApiFallback: true,
 			open: true,
 		},
