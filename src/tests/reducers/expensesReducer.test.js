@@ -1,7 +1,6 @@
-
 import expensesReducer from '../../reducers/expensesReducer';
 
-import expenses from '../fixtures/testData';
+import expenses from '../fixtures/expenses';
 
 test('should set the expensesReducer defaults state', () => {
 	const state = expensesReducer(undefined, { type: '@@INIT' });
