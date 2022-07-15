@@ -6,6 +6,7 @@ import {
 	editExpense,
 	addExpense,
 	removeExpense,
+	startRemoveExpense,
 	setExpenses,
 	startSetExpenses,
 } from '../../actions/expenses';
@@ -32,6 +33,24 @@ beforeEach((done) => {
 test("it'll remove the expense object", () => {
 	const result = removeExpense({ id: 'fq243fsgv5y25i' });
 	expect(result).toEqual({ id: 'fq243fsgv5y25i', type: 'REMOVE_EXPENSE' });
+});
+
+test('Should remove the expense from the firebase', (done) => {
+	const store = createMockStore({});
+	const id = expenses[2].id;
+	store.dispatch(startRemoveExpense({ id }))
+		.then(() => {
+			const actions = store.getActions();
+			expect(actions[0]).toEqual({
+				type: 'REMOVE_EXPENSE',
+				id,
+			});
+			return get(ref(database, `expenses/${id}`));
+		})
+		.then((snapshot) => {
+			expect(snapshot.val()).toBeFalsy();
+			done();
+		});
 });
 test('this would edit expense', () => {
 	const action = editExpense('123abc', { note: 'my new note' });
