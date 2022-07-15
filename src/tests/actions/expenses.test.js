@@ -1,16 +1,33 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, get, set } from 'firebase/database';
 import {
 	startAddExpenses,
 	editExpense,
 	addExpense,
 	removeExpense,
+	setExpenses,
+	startSetExpenses,
 } from '../../actions/expenses';
 import expenses from '../fixtures/expenses';
-// import database from '../../firebase/firebase';
+import database from '../../firebase/firebase';
 const createMockStore = configureMockStore([thunk]);
-const database = getDatabase();
+// const database = getDatabase();
+const dbRef = ref(database, 'expenses');
+
+/* Here we need some data to fetch from firebase so in order to fetch that data we need to create some test data. That will be fetched from fixture data.  */
+beforeEach((done) => {
+	const expensesData = {};
+	expenses.forEach(({ id, description, note, amount, createdAt }) => {
+		expensesData[id] = { description, note, amount, createdAt };
+	});
+	/* Here we need some kind of parsing to pass array data to firebase. */
+
+	/* BeforeEach is not going to wait for this to complete. It means there might be chances for 
+	testcases to run before the data get saved to the firebase. So we passed done to beforeEach to make sure that it don't allow the test cases to run before the firebase actually synced up the data.
+	*/
+	set(dbRef, expensesData).then(() => done());
+});
 
 test("it'll remove the expense object", () => {
 	const result = removeExpense({ id: 'fq243fsgv5y25i' });
@@ -43,6 +60,7 @@ test('Should add expense to database and store', (done) => {
 		note: 'my new note',
 		createdAt: 235435236242,
 	};
+
 	store.dispatch(startAddExpenses(expenseData))
 		.then(() => {
 			const actions = store.getActions();
@@ -54,7 +72,7 @@ test('Should add expense to database and store', (done) => {
 				},
 			});
 
-			return get(ref(database, `Expenses/${actions[0].expense.id}`));
+			return get(ref(database, `expenses/${actions[0].expense.id}`));
 		})
 		.then((snapshot) => {
 			expect(snapshot.val()).toEqual(expenseData);
@@ -80,7 +98,7 @@ test('Should add expense with  defaults to database and store', (done) => {
 				},
 			});
 
-			return get(ref(database, `Expenses/${actions[0].expense.id}`));
+			return get(ref(database, `expenses/${actions[0].expense.id}`));
 		})
 		.then((snapshot) => {
 			expect(snapshot.val()).toEqual(expenseDefaults);
@@ -88,17 +106,22 @@ test('Should add expense with  defaults to database and store', (done) => {
 		});
 });
 
-/* test('should setup the add expense function with the default values', () => {
-	const action = startAddExpenses();
+test('should setup set expense action object with data', () => {
+	const action = setExpenses(expenses);
 	expect(action).toEqual({
-		type: 'ADD_EXPENSE',
-		expense: {
-			description: '',
-			note: '',
-			createdAt: 0,
-			amount: 0,
-			id: expect.any(String),
-		},
+		type: 'SET_EXPENSES',
+		expenses,
 	});
 });
- */
+
+test('should fetch the expenses from firebase', (done) => {
+	const store = createMockStore({});
+	store.dispatch(startSetExpenses()).then(() => {
+		const actions = store.getActions();
+		expect(actions[0]).toEqual({
+			type: 'SET_EXPENSES',
+			expenses,
+		});
+		done();
+	});
+});

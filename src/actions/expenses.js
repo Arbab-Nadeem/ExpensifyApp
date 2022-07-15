@@ -1,12 +1,14 @@
 // import { v4 as uuidv4 } from 'uuid';
-import { push } from 'firebase/database';
+import { get, push, ref } from 'firebase/database';
 
 // ADD_EXPENSE
-import { dbRef } from '../firebase/firebase';
+import database from '../firebase/firebase';
 const addExpense = (expense) => ({
 	type: 'ADD_EXPENSE',
 	expense,
 });
+// const database = getDatabase();
+const dbRef = ref(database, 'expenses');
 /* const addExpense = ({
 	description = '',
 	note = '',
@@ -55,4 +57,30 @@ const editExpense = (id, updates) => ({
 	updates,
 });
 
-export { startAddExpenses, addExpense, removeExpense, editExpense };
+const setExpenses = (expenses) => ({
+	type: 'SET_EXPENSES',
+	expenses,
+});
+const startSetExpenses = () => {
+	return (dispatch) => {
+		return get(dbRef).then((snapshot) => {
+			const expenses = [];
+			snapshot.forEach((childSnapshot) => {
+				expenses.push({
+					id: childSnapshot.key,
+					...childSnapshot.val(),
+				});
+			});
+			dispatch(setExpenses(expenses));
+		});
+	};
+};
+
+export {
+	startSetExpenses,
+	setExpenses,
+	startAddExpenses,
+	addExpense,
+	removeExpense,
+	editExpense,
+};

@@ -14,5 +14,6 @@ const firebaseConfig = {
 };
 initializeApp(firebaseConfig);
 const database = getDatabase();
-const dbRef = ref(database, 'Expenses');
+const dbRef = ref(database, 'expenses');
+
 export { database as default, dbRef };
