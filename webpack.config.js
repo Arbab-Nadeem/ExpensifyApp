@@ -64,7 +64,7 @@ module.exports = (env) => {
 				filename: 'styles.css',
 			}),
 			new webpack.DefinePlugin({
-				//  Clien side environment variable : Node environment variables.
+				//  Client side environment variable : Node environment variables.
 				'process.env.FIRBASE_API_KEY': JSON.stringify(
 					process.env.FIRBASE_API_KEY
 				),
