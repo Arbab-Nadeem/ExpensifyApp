@@ -3,12 +3,11 @@
 exports[`should render the component 1`] = `
 <header>
   <h1>
-    Expensify app
+    Expensify
   </h1>
   <NavLink
     activeClassName="is-active"
-    exact={true}
-    to="/"
+    to="/dashboard"
   >
     Dashboard
   </NavLink>
@@ -16,13 +15,12 @@ exports[`should render the component 1`] = `
     activeClassName="is-active"
     to="/create"
   >
-    Create
+    Create Expense
   </NavLink>
-  <NavLink
-    activeClassName="is-active"
-    to="/help"
+  <button
+    onClick={[Function]}
   >
-    Help
-  </NavLink>
+    Logout
+  </button>
 </header>
 `;

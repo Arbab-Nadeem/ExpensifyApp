@@ -26,3 +26,4 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps)(ExpensesSummary);
+// <p>lorem</p>;

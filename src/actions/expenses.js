@@ -1,5 +1,5 @@
 // import { v4 as uuidv4 } from 'uuid';
-import { get, push, ref, remove, update, child } from 'firebase/database';
+import { get, push, ref, remove, update } from 'firebase/database';
 
 // ADD_EXPENSE
 import database from '../firebase/firebase';
@@ -8,7 +8,6 @@ const addExpense = (expense) => ({
 	expense,
 });
 // const database = getDatabase();
-const dbRef = ref(database, 'expenses');
 /* const addExpense = ({
 	description = '',
 	note = '',
@@ -26,8 +25,10 @@ const dbRef = ref(database, 'expenses');
 });
  */
 const startAddExpenses = (expenseData = {}) => {
-	return (dispatch) => {
+	return (dispatch, getState) => {
 		/* this function gets called internally by redux and it gets called with dispatch. This just gives us access to dispatch so we can use it inside of here after we're done doing whatever we're going to be writing some data to Firebase waiting for that data to correctly sync. Then we'll use dispatch to dispatch add expense, making sure the Redux store reflects those changes*/
+		const uid = getState().auth.uid;
+
 		const {
 			description = '',
 			note = '',
@@ -35,14 +36,16 @@ const startAddExpenses = (expenseData = {}) => {
 			createdAt = 0,
 		} = expenseData;
 		const expense = { description, amount, note, createdAt };
-		return push(dbRef, expense).then((reference) => {
-			dispatch(
-				addExpense({
-					id: reference.key,
-					...expense,
-				})
-			);
-		});
+		return push(ref(database, `users/${uid}/expenses`), expense).then(
+			(reference) => {
+				dispatch(
+					addExpense({
+						id: reference.key,
+						...expense,
+					})
+				);
+			}
+		);
 	};
 };
 //REMOVE_EXPENSE
@@ -53,10 +56,13 @@ const removeExpense = ({ id } = {}) => ({
 
 const startRemoveExpense = ({ id } = {}) => {
 	/* dispatch will be passed to this function by redux library */
-	return (dispatch) => {
-		return remove(ref(database, `expenses/${id}`)).then(() => {
-			dispatch(removeExpense({ id }));
-		});
+	return (dispatch, getState) => {
+		const uid = getState().auth.uid;
+		return remove(ref(database, `users/${uid}/expenses/${id}`)).then(
+			() => {
+				dispatch(removeExpense({ id }));
+			}
+		);
 	};
 };
 //EDIT_EXPENSE
@@ -67,10 +73,12 @@ const editExpense = (id, updates) => ({
 });
 
 const startEditExpense = (id, updates) => {
-	return (dispatch) => {
-		return update(ref(database, `expenses/${id}`), updates).then(() =>
-			dispatch(editExpense(id, updates))
-		);
+	return (dispatch, getState) => {
+		const uid = getState().auth.uid;
+		return update(
+			ref(database, `users/${uid}/expenses/${id}`),
+			updates
+		).then(() => dispatch(editExpense(id, updates)));
 	};
 };
 
@@ -79,17 +87,20 @@ const setExpenses = (expenses) => ({
 	expenses,
 });
 const startSetExpenses = () => {
-	return (dispatch) => {
-		return get(dbRef).then((snapshot) => {
-			const expenses = [];
-			snapshot.forEach((childSnapshot) => {
-				expenses.push({
-					id: childSnapshot.key,
-					...childSnapshot.val(),
+	return (dispatch, getState) => {
+		const uid = getState().auth.uid;
+		return get(ref(database, `users/${uid}/expenses`)).then(
+			(snapshot) => {
+				const expenses = [];
+				snapshot.forEach((childSnapshot) => {
+					expenses.push({
+						id: childSnapshot.key,
+						...childSnapshot.val(),
+					});
 				});
-			});
-			dispatch(setExpenses(expenses));
-		});
+				dispatch(setExpenses(expenses));
+			}
+		);
 	};
 };
 

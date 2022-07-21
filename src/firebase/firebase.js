@@ -1,6 +1,11 @@
 import { getDatabase, ref } from 'firebase/database';
 import { initializeApp } from 'firebase/app';
-
+import {
+	getAuth,
+	signInWithPopup,
+	GoogleAuthProvider,
+	onAuthStateChanged,
+} from 'firebase/auth';
 // Initialize Firebase
 
 const firebaseConfig = {
@@ -12,8 +17,10 @@ const firebaseConfig = {
 	messagingSenderId: process.env.FIRBASE_MESSAGING_SENDER_ID,
 	appId: process.env.FIRBASE_APP_ID,
 };
-initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 const database = getDatabase();
+const googleAuthProvider = new GoogleAuthProvider();
 const dbRef = ref(database, 'expenses');
+const auth = getAuth(app);
 
-export { database as default, dbRef };
+export { database as default, dbRef, googleAuthProvider, auth };
